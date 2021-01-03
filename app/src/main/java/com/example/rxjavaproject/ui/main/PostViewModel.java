@@ -1,5 +1,7 @@
 package com.example.rxjavaproject.ui.main;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -8,26 +10,44 @@ import com.example.rxjavaproject.pojo.PostModel;
 
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+
 
 public class PostViewModel extends ViewModel {
     MutableLiveData<List<PostModel>> postsMutableLiveData = new MutableLiveData<>();
+    private static final String TAG = "PostViewModel";
 
-    public void getPosts(){
-        PostsClient.getINSTANCE().getPosts().enqueue(new Callback<List<PostModel>>() {
+    public void getPosts() {
+        Observable observable = PostsClient.getINSTANCE().getPosts()
+                .subscribeOn(Schedulers.io());
+
+        Observer<List<PostModel>> observer = new Observer<List<PostModel>>() {
             @Override
-            public void onResponse(Call<List<PostModel>> call, Response<List<PostModel>> response) {
-                postsMutableLiveData.setValue(response.body());
+            public void onSubscribe(Disposable d) {
+
             }
 
             @Override
-            public void onFailure(Call<List<PostModel>> call, Throwable t) {
+            public void onNext(List<PostModel> value) {
+                postsMutableLiveData.setValue(value);
 
             }
-        });
 
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError: " + e.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        };
+        observable.subscribe(observer);
     }
 
 
