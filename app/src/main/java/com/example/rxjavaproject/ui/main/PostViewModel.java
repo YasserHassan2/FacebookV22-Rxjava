@@ -33,7 +33,7 @@ public class PostViewModel extends ViewModel {
 
             @Override
             public void onNext(List<PostModel> value) {
-                postsMutableLiveData.setValue(value);
+                postsMutableLiveData.postValue(value);
 
             }
 
